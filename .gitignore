@@ -1,0 +1,7 @@
+/obj
+/bin
+/.vs
+/results
+/allure-report
+/**/obj/**
+/**/bin/**

@@ -1,0 +1,44 @@
+name: Run Selenium Tests
+
+on:
+  schedule:
+    # Runs at 7 PM UTC every Friday
+    - cron: '0 19 * * 5'  # 19:00 (7 PM) UTC on Friday
+  workflow_dispatch:  # Allows manual trigger of the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Runs on the latest Ubuntu image
+    env:
+      LT_USERNAME: ${{ secrets.LT_USERNAME }}  # Fetch LambdaTest username from GitHub Secrets
+      LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}  # Fetch LambdaTest access key from GitHub Secrets
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up .NET SDK 8.0
+      - name: Set up .NET 8.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      # Install dependencies (including browsers and WebDriver)
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl git
+          sudo apt-get install -y google-chrome-stable
+          # Install Chromium WebDriver
+          sudo apt-get install -y chromium-chromedriver
+
+      # Restore dependencies and build the project
+      - name: Restore and Build
+        run: |
+          dotnet restore
+          dotnet build
+
+      # Run the tests
+      - name: Run tests
+        run: |
+          dotnet test
